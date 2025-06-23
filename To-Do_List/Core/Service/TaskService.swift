@@ -21,7 +21,7 @@ protocol TaskServiceProtocol {
 
 final class TaskService: TaskServiceProtocol {
     private let network: TasksNetworkServiceProtocol
-    private let coreDataManager: CoreDataManager
+    private let storage: Storage
     private let userDefaults: UserDefaults
     
     private var allTasks: [Task] = []
@@ -37,16 +37,16 @@ final class TaskService: TaskServiceProtocol {
     private let hasLoadedKey = "hasLoadedTasks"
 
     init(network: TasksNetworkServiceProtocol,
-         coreDataManager: CoreDataManager,
+         storage: Storage,
          userDefaults: UserDefaults = .standard) {
         self.network = network
         self.userDefaults = userDefaults
-        self.coreDataManager = coreDataManager
+        self.storage = storage
     }
 
     func getTasks()  {
         if userDefaults.bool(forKey: hasLoadedKey) {
-            let tasks = coreDataManager.fetchAllTasks()
+            let tasks = storage.fetchAllTasks()
             self.allTasks = tasks
             self.tasksSubject.send(tasks)
         } else {
@@ -54,7 +54,7 @@ final class TaskService: TaskServiceProtocol {
                 switch result {
                 case .success(let dtos):
                     let tasks = dtos.map { $0.toTask() }
-                    self?.coreDataManager.saveAll(tasks)
+                    self?.storage.saveAll(tasks)
                     self?.userDefaults.set(true, forKey: self?.hasLoadedKey ?? "")
                     self?.allTasks = tasks
                     self?.tasksSubject.send(tasks)
@@ -80,7 +80,7 @@ final class TaskService: TaskServiceProtocol {
         var task = allTasks[index]
         task.isCompleted.toggle()
         
-        coreDataManager.updateTask(task)
+        storage.updateTask(task)
 
         allTasks[index] = task
         taskDidUpdate.send(task)
@@ -88,19 +88,19 @@ final class TaskService: TaskServiceProtocol {
 
     func deleteTask(id: String) {
         allTasks.removeAll { $0.id == id }
-        coreDataManager.deleteTask(by: id)
+        storage.deleteTask(by: id)
     }
 
     func save(task: Task) {
         allTasks.insert(task, at: 0)
-        coreDataManager.add(task: task)
+        storage.add(task: task)
         tasksSubject.send(allTasks)
     }
 
     func update(task: Task) {
         guard let index = allTasks.firstIndex(where: { $0.id == task.id }) else { return }
         allTasks[index] = task
-        coreDataManager.updateTask(task)
+        storage.updateTask(task)
         tasksSubject.send(allTasks)
     }
 }

@@ -6,7 +6,15 @@
 //
 import CoreData
 
-final class CoreDataManager {
+protocol Storage {
+    func fetchAllTasks() -> [Task]
+    func saveAll(_ tasks: [Task])
+    func add(task: Task)
+    func deleteTask(by id: String)
+    func updateTask(_ task: Task)
+}
+
+final class CoreDataManager: Storage {
 
     var viewContext: NSManagedObjectContext {
         persistentContainer.viewContext

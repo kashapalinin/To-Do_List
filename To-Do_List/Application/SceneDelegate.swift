@@ -59,7 +59,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let locator = ServiceLocator.shared
         let network = TasksNetworkService()
         let coreDataManager = CoreDataManager()
-        locator.register(TaskService(network: network, coreDataManager: coreDataManager))
+        locator.register(TaskService(network: network, storage: coreDataManager))
         locator.register(coreDataManager)
     }
 }

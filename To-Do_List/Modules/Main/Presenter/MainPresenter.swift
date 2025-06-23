@@ -13,6 +13,7 @@ protocol MainPresenterInput: AnyObject {
     func toggleCompletion(id: String)
     func deleteTask(id: String)
     func showError(_ error: Error)
+    func formTasksString(_ count: Int) -> String
 }
 
 final class MainPresenter: MainPresenterInput, MainInteractorOutput {
@@ -57,5 +58,22 @@ final class MainPresenter: MainPresenterInput, MainInteractorOutput {
     func showError(_ error: Error) {
         view?.showError(error)
         view?.setLoading(false)
+    }
+    
+    func formTasksString(_ count: Int) -> String {
+        let remainder10 = count % 10
+        let remainder100 = count % 100
+        
+        var wordForm: String
+        
+        if remainder10 == 1 && remainder100 != 11 {
+            wordForm = "задача"
+        } else if remainder10 >= 2 && remainder10 <= 4 && !(remainder100 >= 12 && remainder100 <= 14) {
+            wordForm = "задачи"
+        } else {
+            wordForm = "задач"
+        }
+        
+        return "\(count) \(wordForm)"
     }
 }

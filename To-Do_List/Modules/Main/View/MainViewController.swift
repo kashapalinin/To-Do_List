@@ -95,7 +95,7 @@ final class MainViewController: UIViewController, MainViewInput {
 
     func showTasks(_ tasks: [Task]) {
         dataSource.updateSnapshot(with: tasks, animation: true)
-        countLabel.text = formTasksString(tasks.count)
+        countLabel.text = presenter?.formTasksString(tasks.count)
     }
 
     func showError(_ error: Error) {
@@ -126,22 +126,5 @@ final class MainViewController: UIViewController, MainViewInput {
                 self?.presenter?.search(query: text)
             }
             .store(in: &cancellables)
-    }
-
-    private func formTasksString(_ count: Int) -> String {
-        let remainder10 = count % 10
-        let remainder100 = count % 100
-        
-        var wordForm: String
-        
-        if remainder10 == 1 && remainder100 != 11 {
-            wordForm = "задача"
-        } else if remainder10 >= 2 && remainder10 <= 4 && !(remainder100 >= 12 && remainder100 <= 14) {
-            wordForm = "задачи"
-        } else {
-            wordForm = "задач"
-        }
-        
-        return "\(count) \(wordForm)"
     }
 }
